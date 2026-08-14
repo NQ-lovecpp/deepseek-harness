@@ -32,7 +32,7 @@ RUN sed -i \
       -e 's|http://deb.debian.org/debian|http://mirrors.tuna.tsinghua.edu.cn/debian|g' \
       /etc/apt/sources.list.d/debian.sources \
     && apt-get -o Acquire::ForceIPv4=true -o Acquire::Retries=3 update \
-    && apt-get install --yes --no-install-recommends ca-certificates curl util-linux \
+    && apt-get install --yes --no-install-recommends ca-certificates curl systemd util-linux \
     && groupadd --gid "${DOCKER_GID}" docker-host \
     && usermod --append --groups docker-host node
 
