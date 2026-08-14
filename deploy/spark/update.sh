@@ -7,6 +7,7 @@ runtime_dir="$deployment_dir/runtime"
 release_file="$runtime_dir/release.env"
 previous_release_file="$runtime_dir/release.previous.env"
 candidate_release_file="$runtime_dir/release.candidate.env"
+upstream_base_file="$runtime_dir/upstream-base"
 log_file="$runtime_dir/update.log"
 
 mkdir --parents "$runtime_dir"
@@ -50,6 +51,13 @@ fi
 previous_commit="$(git -C "$repository_dir" rev-parse HEAD)"
 cp "$release_file" "$previous_release_file"
 
+previous_upstream=""
+if [[ -f "$upstream_base_file" ]]; then
+  previous_upstream="$(<"$upstream_base_file")"
+elif git -C "$repository_dir" rev-parse --verify --quiet refs/remotes/upstream/master >/dev/null; then
+  previous_upstream="$(git -C "$repository_dir" rev-parse refs/remotes/upstream/master)"
+fi
+
 printf '%s %s\n' "$(date --iso-8601=seconds)" 'fetching upstream/master'
 git_proxy="${DSH_GIT_HTTPS_PROXY:-}"
 if [[ -n "$git_proxy" ]]; then
@@ -57,9 +65,18 @@ if [[ -n "$git_proxy" ]]; then
 fi
 timeout --preserve-status 180 \
   env GIT_TERMINAL_PROMPT=0 HTTPS_PROXY="$git_proxy" HTTP_PROXY="$git_proxy" \
-  git -C "$repository_dir" fetch --deepen=256 upstream master
+  git -C "$repository_dir" fetch --depth=1 upstream master
 
-if ! git -C "$repository_dir" rebase FETCH_HEAD; then
+if [[ -z "$previous_upstream" ]]; then
+  previous_upstream="$(git -C "$repository_dir" merge-base HEAD FETCH_HEAD || true)"
+fi
+
+if [[ -z "$previous_upstream" ]]; then
+  printf '%s\n' 'Update stopped because no prior upstream base is available; active service was not changed.'
+  exit 1
+fi
+
+if ! git -C "$repository_dir" rebase --onto FETCH_HEAD "$previous_upstream"; then
   git -C "$repository_dir" rebase --abort
   printf '%s\n' 'Update stopped because upstream rebase conflicted; active service was not changed.'
   exit 1
@@ -91,4 +108,5 @@ fi
 docker compose --env-file "$release_file" --project-directory "$deployment_dir" \
   --file "$deployment_dir/compose.yaml" \
   up --detach --no-build access-proxy
+printf '%s\n' "$(git -C "$repository_dir" rev-parse FETCH_HEAD)" > "$upstream_base_file"
 printf '%s %s\n' "$(date --iso-8601=seconds)" "updated successfully to $candidate_release"

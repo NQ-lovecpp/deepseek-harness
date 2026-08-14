@@ -45,4 +45,4 @@ systemctl --user start deepseek-harness-update.service
 tail -f runtime/update.log
 ```
 
-The timer checks upstream `master` at 04:30 daily. It uses Spark's existing loopback-only Mihomo proxy for GitHub Smart HTTP, rebases the local `spark-deploy` checkout, builds a SHA-tagged image, replaces DSH only after a health check, and restores the prior commit/image if fetch, build, or health verification fails. The Spark host has no GitHub write credentials and never pushes this branch.
+The timer checks upstream `master` at 04:30 daily. It uses Spark's existing loopback-only Mihomo proxy for GitHub Smart HTTP and fetches only the upstream tip, avoiding a large history download on each run. It then rebases the local `spark-deploy` commits, builds a SHA-tagged image, replaces DSH only after a health check, and restores the prior commit/image if fetch, rebase, build, or health verification fails. The Spark host has no GitHub write credentials and never pushes this branch.
