@@ -13,9 +13,10 @@ if [[ ! -f "$runtime_dir/htpasswd" || ! -f "$runtime_dir/server.crt" || ! -f "$r
   exit 2
 fi
 
-if [[ ! -f "$release_file" ]]; then
-  docker_gid="$(getent group docker | awk -F: '{print $3}')"
-  release="$(git -C "$repository_dir" rev-parse --short=12 HEAD)"
+docker_gid="$(getent group docker | awk -F: '{print $3}')"
+release="$(git -C "$repository_dir" rev-parse --short=12 HEAD)"
+
+if [[ ! -f "$release_file" ]] || ! grep --fixed-strings --quiet "DSH_RELEASE=$release" "$release_file"; then
   printf 'DSH_RELEASE=%s\nDOCKER_GID=%s\n' "$release" "$docker_gid" > "$release_file"
 fi
 
