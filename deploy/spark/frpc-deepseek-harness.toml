@@ -1,0 +1,9 @@
+serverAddr = "117.72.15.209"
+serverPort = 12000
+
+[[proxies]]
+name = "deepseek-harness"
+type = "tcp"
+localIP = "127.0.0.1"
+localPort = 8891
+remotePort = 12009

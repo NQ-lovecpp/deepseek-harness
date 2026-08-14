@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily DeepSeek Harness upstream update
+
+[Timer]
+OnCalendar=*-*-* 04:30:00
+Persistent=true
+Unit=deepseek-harness-update.service
+
+[Install]
+WantedBy=timers.target

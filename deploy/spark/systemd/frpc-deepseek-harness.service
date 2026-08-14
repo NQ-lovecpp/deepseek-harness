@@ -1,0 +1,14 @@
+[Unit]
+Description=FRP Client for DeepSeek Harness
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/chen/Kit/frp_0.61.2_linux_arm64
+ExecStart=/home/chen/Kit/frp_0.61.2_linux_arm64/frpc -c /home/chen/Code/deepseek-harness/deploy/spark/frpc-deepseek-harness.toml
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

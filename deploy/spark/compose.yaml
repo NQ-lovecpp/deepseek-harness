@@ -1,0 +1,51 @@
+name: deepseek-harness-spark
+
+services:
+  dsh:
+    image: "deepseek-harness:spark-${DSH_RELEASE:?DSH_RELEASE must be set}"
+    build:
+      context: ../..
+      dockerfile: deploy/spark/Dockerfile
+      args:
+        DOCKER_GID: "${DOCKER_GID:-988}"
+    container_name: deepseek-harness
+    network_mode: host
+    init: true
+    restart: unless-stopped
+    environment:
+      DSH_HOME: /dsh-state/dsh
+      HOME: /dsh-state/home
+      DSH_PERMISSION_MODE: danger-full-access
+      VLLM_API_KEY: local-vllm-placeholder
+      XDG_RUNTIME_DIR: /run/user/1000
+      DBUS_SESSION_BUS_ADDRESS: unix:path=/run/user/1000/bus
+    volumes:
+      - dsh-state:/dsh-state
+      - /home/chen:/host/chen:rw
+      - /run/user/1000:/run/user/1000:rw
+      - /var/run/docker.sock:/var/run/docker.sock
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent --show-error http://127.0.0.1:3080/ >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 18
+      start_period: 30s
+
+  access-proxy:
+    image: nginx:alpine
+    container_name: deepseek-harness-access-proxy
+    network_mode: host
+    init: true
+    restart: unless-stopped
+    depends_on:
+      dsh:
+        condition: service_healthy
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./runtime/htpasswd:/etc/nginx/htpasswd:ro
+      - ./runtime/server.crt:/etc/nginx/tls/server.crt:ro
+      - ./runtime/server.key:/etc/nginx/tls/server.key:ro
+
+volumes:
+  dsh-state:
+    name: dsh-state

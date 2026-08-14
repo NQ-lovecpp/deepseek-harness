@@ -1,0 +1,9 @@
+[Unit]
+Description=Safely update DeepSeek Harness from upstream master
+After=deepseek-harness.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/chen/Code/deepseek-harness
+ExecStart=/home/chen/Code/deepseek-harness/deploy/spark/update.sh

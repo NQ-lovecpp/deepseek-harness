@@ -1,0 +1,14 @@
+[Unit]
+Description=DeepSeek Harness Docker Compose stack
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/chen/Code/deepseek-harness/deploy/spark
+ExecStart=/home/chen/Code/deepseek-harness/deploy/spark/bootstrap.sh
+ExecStop=/usr/bin/docker compose --env-file /home/chen/Code/deepseek-harness/deploy/spark/runtime/release.env --project-directory /home/chen/Code/deepseek-harness/deploy/spark down
+RemainAfterExit=yes
+
+[Install]
+WantedBy=default.target

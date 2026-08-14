@@ -1,0 +1,12 @@
+llm-pi-ai:
+  providers:
+    spark-vllm:
+      displayName: Spark local vLLM
+      apiKeyEnv: VLLM_API_KEY
+      api: openai-completions
+      baseURL: http://127.0.0.1:14002/v1
+      models:
+        - id: /models/Qwen3.6-35B-A3B-NVFP4
+          name: Qwen3.6-35B-A3B-NVFP4 (Spark)
+          contextWindow: 262144
+          maxTokens: 32768

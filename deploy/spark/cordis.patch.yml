@@ -1,0 +1,25 @@
+- id: agent-default-model
+  config:
+    provider: spark-vllm
+    model: /models/Qwen3.6-35B-A3B-NVFP4
+
+- id: approval
+  config:
+    policy: ask
+
+- id: permission
+  config:
+    defaultPreset: host-admin
+    presets:
+      read-only:
+        sandbox: read-only
+        approval: ask
+      workspace-write:
+        sandbox: workspace-write
+        approval: ask
+      danger-full-access:
+        sandbox: danger-full-access
+        approval: ask
+      host-admin:
+        sandbox: danger-full-access
+        approval: ask
