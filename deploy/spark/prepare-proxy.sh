@@ -25,5 +25,5 @@ if [[ ! -f "$runtime_dir/server.crt" || ! -f "$runtime_dir/server.key" ]]; then
     -addext 'subjectAltName=IP:117.72.15.209'
 fi
 
-chmod 0600 "$runtime_dir/htpasswd" "$runtime_dir/server.key"
-chmod 0644 "$runtime_dir/server.crt"
+chmod 0600 "$runtime_dir/server.key"
+chmod 0644 "$runtime_dir/htpasswd" "$runtime_dir/server.crt"

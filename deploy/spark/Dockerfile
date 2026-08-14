@@ -32,17 +32,18 @@ RUN sed -i \
       -e 's|http://deb.debian.org/debian|http://mirrors.tuna.tsinghua.edu.cn/debian|g' \
       /etc/apt/sources.list.d/debian.sources \
     && apt-get -o Acquire::ForceIPv4=true -o Acquire::Retries=3 update \
-    && apt-get install --yes --no-install-recommends ca-certificates curl systemd util-linux \
+    && apt-get install --yes --no-install-recommends ca-certificates curl util-linux \
     && groupadd --gid "${DOCKER_GID}" docker-host \
     && usermod --append --groups docker-host node
 
 COPY --from=docker-cli /usr/local/bin/docker /usr/local/bin/docker
 COPY --from=builder --chown=node:node /app /app
 COPY deploy/spark/entrypoint.sh /usr/local/bin/dsh-entrypoint
+COPY deploy/spark/systemctl-wrapper.mjs /usr/local/bin/systemctl
 COPY deploy/spark/settings.yaml /opt/dsh-seed/settings.yaml
 COPY deploy/spark/cordis.patch.yml /opt/dsh-seed/cordis.patch.yml
 
-RUN chmod 0755 /usr/local/bin/dsh-entrypoint \
+RUN chmod 0755 /usr/local/bin/dsh-entrypoint /usr/local/bin/systemctl \
     && mkdir --parents /dsh-state/dsh /dsh-state/home \
     && chown --recursive node:node /dsh-state
 

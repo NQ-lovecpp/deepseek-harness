@@ -9,7 +9,8 @@ The Docker build uses the Tsinghua Debian mirror over HTTP because the Spark hos
 - Nginx requires Basic Auth. Generate its password hash and local TLS files before the first start; the clear-text password is never stored in this repository.
 - DSH state, sessions, settings, and credentials live only in the named `dsh-state` Docker volume. The local vLLM placeholder key is not a secret.
 - The default `host-admin` permission preset uses `danger-full-access` with `ask`: every action that needs approval requires a fresh browser approval, and a rejected, unattended, or disconnected request does not run.
-- The agent can access `/host/chen`, the user D-Bus, and the Docker socket. Docker socket access is equivalent to host-root container control; do not grant approvals to instructions you do not trust.
+- The agent can access `/host/chen` and the Docker socket. Docker socket access is equivalent to host-root container control; do not grant approvals to instructions you do not trust.
+- `systemctl --user` is forwarded only to a loopback-only chen user service through a randomly generated local token. The proxy accepts a small allowlist of user-service operations and never supplies a root shell.
 - Keep host-administration sessions on the local Spark vLLM provider. A cloud provider can receive any host-file content the agent reads while serving a request.
 
 ## First start
@@ -19,10 +20,17 @@ On Spark, run the following once from this directory. Supply the Nginx password 
 ```sh
 export NGINX_AUTH_PASSWORD='replace-with-the-approved-password'
 ./prepare-proxy.sh
+./prepare-host-admin.sh
 unset NGINX_AUTH_PASSWORD
+install -Dm 0644 systemd/deepseek-harness.service ~/.config/systemd/user/deepseek-harness.service
+install -Dm 0644 systemd/frpc-deepseek-harness.service ~/.config/systemd/user/frpc-deepseek-harness.service
+install -Dm 0644 systemd/deepseek-harness-systemctl-proxy.service ~/.config/systemd/user/deepseek-harness-systemctl-proxy.service
+install -Dm 0644 systemd/deepseek-harness-update.service ~/.config/systemd/user/deepseek-harness-update.service
+install -Dm 0644 systemd/deepseek-harness-update.timer ~/.config/systemd/user/deepseek-harness-update.timer
 systemctl --user daemon-reload
 systemctl --user enable --now deepseek-harness.service
 systemctl --user enable --now frpc-deepseek-harness.service
+systemctl --user enable --now deepseek-harness-systemctl-proxy.service
 systemctl --user enable --now deepseek-harness-update.timer
 ```
 

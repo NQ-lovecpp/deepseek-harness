@@ -1,0 +1,16 @@
+[Unit]
+Description=Restricted user-systemd proxy for DeepSeek Harness
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+Environment=SYSTEMCTL_PROXY_ADDRESS=127.0.0.1
+Environment=SYSTEMCTL_PROXY_PORT=8892
+Environment=SYSTEMCTL_PROXY_TOKEN_FILE=/home/chen/Code/deepseek-harness/deploy/spark/runtime/systemctl-proxy.token
+ExecStart=/usr/bin/python3 /home/chen/Code/deepseek-harness/deploy/spark/systemctl-user-proxy.py
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=default.target

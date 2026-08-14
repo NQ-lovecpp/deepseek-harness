@@ -17,13 +17,13 @@ services:
       HOME: /dsh-state/home
       DSH_PERMISSION_MODE: danger-full-access
       VLLM_API_KEY: local-vllm-placeholder
-      XDG_RUNTIME_DIR: /run/user/1000
-      DBUS_SESSION_BUS_ADDRESS: unix:path=/run/user/1000/bus
+      SYSTEMCTL_PROXY_HOST: 127.0.0.1
+      SYSTEMCTL_PROXY_PORT: 8892
     volumes:
       - dsh-state:/dsh-state
       - /home/chen:/host/chen:rw
-      - /run/user/1000:/run/user/1000:rw
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./runtime/systemctl-proxy.token:/run/dsh-proxy/token:ro
     healthcheck:
       test: ["CMD-SHELL", "curl --fail --silent --show-error http://127.0.0.1:3080/ >/dev/null"]
       interval: 10s
