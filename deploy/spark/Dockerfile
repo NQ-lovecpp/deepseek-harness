@@ -6,6 +6,9 @@ ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
 
 WORKDIR /app
 
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends git python3 make g++
+
 RUN corepack enable && corepack prepare pnpm@11.7.0 --activate
 
 COPY . .
