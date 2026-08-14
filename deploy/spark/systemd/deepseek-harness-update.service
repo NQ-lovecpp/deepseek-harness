@@ -6,4 +6,7 @@ Wants=network-online.target
 [Service]
 Type=oneshot
 WorkingDirectory=/home/chen/Code/deepseek-harness
+# Spark's existing loopback-only Mihomo service makes GitHub Smart HTTP reliable.
+# If it is unavailable, the bounded update fails closed and leaves the active release intact.
+Environment=DSH_GIT_HTTPS_PROXY=http://127.0.0.1:7890
 ExecStart=/home/chen/Code/deepseek-harness/deploy/spark/update.sh

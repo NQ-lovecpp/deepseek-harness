@@ -51,8 +51,13 @@ previous_commit="$(git -C "$repository_dir" rev-parse HEAD)"
 cp "$release_file" "$previous_release_file"
 
 printf '%s %s\n' "$(date --iso-8601=seconds)" 'fetching upstream/master'
+git_proxy="${DSH_GIT_HTTPS_PROXY:-}"
+if [[ -n "$git_proxy" ]]; then
+  printf '%s %s\n' "$(date --iso-8601=seconds)" "using configured HTTPS proxy for upstream fetch"
+fi
 timeout --preserve-status 180 \
-  env GIT_TERMINAL_PROMPT=0 git -C "$repository_dir" fetch --deepen=256 upstream master
+  env GIT_TERMINAL_PROMPT=0 HTTPS_PROXY="$git_proxy" HTTP_PROXY="$git_proxy" \
+  git -C "$repository_dir" fetch --deepen=256 upstream master
 
 if ! git -C "$repository_dir" rebase FETCH_HEAD; then
   git -C "$repository_dir" rebase --abort
