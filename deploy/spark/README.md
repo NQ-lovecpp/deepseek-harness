@@ -2,6 +2,8 @@
 
 This directory deploys DeepSeek Harness on the Spark host through Docker Compose. The Web UI stays on `127.0.0.1:3080`; Nginx terminates self-signed HTTPS on `127.0.0.1:8891`, and FRP publishes that TLS endpoint on `https://117.72.15.209:12009`.
 
+The Docker build uses the Tsinghua Debian mirror over HTTP because the Spark host's default Debian route stalls during image builds. Debian repository signatures remain verified by APT.
+
 ## Security model
 
 - Nginx requires Basic Auth. Generate its password hash and local TLS files before the first start; the clear-text password is never stored in this repository.

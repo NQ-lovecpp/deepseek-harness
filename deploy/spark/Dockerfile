@@ -6,7 +6,11 @@ ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
 
 WORKDIR /app
 
-RUN apt-get update \
+RUN sed -i \
+      -e 's|http://deb.debian.org/debian-security|http://mirrors.tuna.tsinghua.edu.cn/debian-security|g' \
+      -e 's|http://deb.debian.org/debian|http://mirrors.tuna.tsinghua.edu.cn/debian|g' \
+      /etc/apt/sources.list.d/debian.sources \
+    && apt-get -o Acquire::ForceIPv4=true -o Acquire::Retries=3 update \
     && apt-get install --yes --no-install-recommends git python3 make g++
 
 RUN corepack enable && corepack prepare pnpm@11.7.0 --activate
@@ -23,7 +27,11 @@ ENV DSH_HOME=/dsh-state/dsh \
     HOME=/dsh-state/home \
     PATH=/app/node_modules/.bin:${PATH}
 
-RUN apt-get update \
+RUN sed -i \
+      -e 's|http://deb.debian.org/debian-security|http://mirrors.tuna.tsinghua.edu.cn/debian-security|g' \
+      -e 's|http://deb.debian.org/debian|http://mirrors.tuna.tsinghua.edu.cn/debian|g' \
+      /etc/apt/sources.list.d/debian.sources \
+    && apt-get -o Acquire::ForceIPv4=true -o Acquire::Retries=3 update \
     && apt-get install --yes --no-install-recommends ca-certificates curl util-linux \
     && groupadd --gid "${DOCKER_GID}" docker-host \
     && usermod --append --groups docker-host node
