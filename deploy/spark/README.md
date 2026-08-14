@@ -7,6 +7,7 @@ The Docker build uses the Tsinghua Debian mirror over HTTP because the Spark hos
 ## Security model
 
 - Nginx requires Basic Auth. Generate its password hash and local TLS files before the first start; the clear-text password is never stored in this repository.
+- Nginx is the authentication boundary and rewrites the upstream `Host` and `Origin` to DSH's loopback authority. DSH intentionally keeps settings and credentials RPCs loopback-only; forwarding the public FRP authority would make those calls return `403` even after Basic Auth succeeds.
 - DSH state, sessions, settings, and credentials live only in the named `dsh-state` Docker volume. The local vLLM placeholder key is not a secret.
 - The default `host-admin` permission preset uses `danger-full-access` with `ask`: every action that needs approval requires a fresh browser approval, and a rejected, unattended, or disconnected request does not run.
 - The agent can access `/host/chen` and the Docker socket. Docker socket access is equivalent to host-root container control; do not grant approvals to instructions you do not trust.
