@@ -51,7 +51,8 @@ previous_commit="$(git -C "$repository_dir" rev-parse HEAD)"
 cp "$release_file" "$previous_release_file"
 
 printf '%s %s\n' "$(date --iso-8601=seconds)" 'fetching upstream/master'
-git -C "$repository_dir" fetch upstream master
+timeout --preserve-status 180 \
+  env GIT_TERMINAL_PROMPT=0 git -C "$repository_dir" fetch --deepen=256 upstream master
 
 if ! git -C "$repository_dir" rebase FETCH_HEAD; then
   git -C "$repository_dir" rebase --abort
